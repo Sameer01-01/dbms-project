@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Edit {{ entity_type|capitalize }}</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5>Edit {{ entity_type|capitalize }} Details</h5>
+            </div>
+            <div class="card-body">
+                {% if entity_type == 'medicine' %}
+                <form method="POST" action="{{ url_for('edit_medicine', id=entity.id) }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Medicine Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ entity.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="batch_number" class="form-label">Batch Number</label>
+                        <input type="text" class="form-control" id="batch_number" name="batch_number" value="{{ entity.batch_number }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="manufacturer" class="form-label">Manufacturer</label>
+                        <input type="text" class="form-control" id="manufacturer" name="manufacturer" value="{{ entity.manufacturer }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="{{ entity.quantity }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ entity.price }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="expiry_date" name="expiry_date" value="{{ entity.expiry_date.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('medicines') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Medicine</button>
+                    </div>
+                </form>
+
+                {% elif entity_type == 'customer' %}
+                <form method="POST" action="{{ url_for('edit_customer', id=entity.id) }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ entity.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{ entity.contact }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ entity.email or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ entity.address or '' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('customers') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Customer</button>
+                    </div>
+                </form>
+
+                {% elif entity_type == 'retailer' %}
+                <form method="POST" action="{{ url_for('edit_retailer', id=entity.id) }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Retailer Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ entity.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{ entity.contact }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ entity.email or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ entity.address or '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ entity.location }}" required>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('retailers') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Retailer</button>
+                    </div>
+                </form>
+
+                {% elif entity_type == 'supplier' %}
+                <form method="POST" action="{{ url_for('edit_supplier', id=entity.id) }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Supplier Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ entity.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{ entity.contact }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ entity.email or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ entity.address or '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control" id="company" name="company" value="{{ entity.company }}" required>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('suppliers') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Supplier</button>
+                    </div>
+                </form>
+
+                {% elif entity_type == 'prescription' %}
+                <form method="POST" action="{{ url_for('edit_prescription', id=entity.id) }}">
+                    <div class="mb-3">
+                        <label for="patient_id" class="form-label">Patient</label>
+                        <select class="form-select" id="patient_id" name="patient_id" required>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}" {% if customer.id == entity.patient_id %}selected{% endif %}>
+                                {{ customer.name }} ({{ customer.contact }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctor_name" class="form-label">Doctor Name</label>
+                        <input type="text" class="form-control" id="doctor_name" name="doctor_name" value="{{ entity.doctor_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date_prescribed" class="form-label">Date Prescribed</label>
+                        <input type="date" class="form-control" id="date_prescribed" name="date_prescribed" value="{{ entity.date_prescribed.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3">{{ entity.notes or '' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('prescriptions') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Prescription</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

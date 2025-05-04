@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from database import db, User, Medicine, Customer, Retailer
+from database import db, User, Medicine, Customer, Retailer, Supplier, Prescription, prescription_medicine, customer_medicine
 from config import Config
 from datetime import datetime
 import os
@@ -22,12 +22,41 @@ def load_user(user_id):
 
 # Create database tables
 with app.app_context():
+    # Force drop all tables and recreate them (only for development!)
+    # db.drop_all()
     db.create_all()
+    
     # Create admin user if not exists
     if not User.query.filter_by(username='admin').first():
         admin = User(username='admin')
         admin.set_password('admin123')
         db.session.add(admin)
+        db.session.commit()
+    
+    # Create a sample supplier if none exists
+    if not Supplier.query.first():
+        sample_supplier = Supplier(
+            name="MedSupply Inc.",
+            contact="123-456-7890",
+            email="contact@medsupply.com",
+            address="123 Medical Drive, Pharma City",
+            company="MedSupply Pharmaceuticals",
+            date_added=datetime.now().date()
+        )
+        db.session.add(sample_supplier)
+        db.session.commit()
+    
+    # Create a sample prescription if none exists and there's at least one customer
+    customer = Customer.query.first()
+    if customer and not Prescription.query.first():
+        sample_prescription = Prescription(
+            patient_id=customer.id,
+            doctor_name="Dr. John Smith",
+            date_prescribed=datetime.now().date(),
+            notes="Take twice daily after meals",
+            date_added=datetime.now().date()
+        )
+        db.session.add(sample_prescription)
         db.session.commit()
 
 # Routes
@@ -62,7 +91,8 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', Medicine=Medicine, Customer=Customer, Retailer=Retailer)
+    now = datetime.now()
+    return render_template('dashboard.html', Medicine=Medicine, Customer=Customer, Retailer=Retailer, Supplier=Supplier, Prescription=Prescription, now=now)
 
 # Medicines routes
 @app.route('/medicines', methods=['GET', 'POST'])
@@ -270,6 +300,145 @@ def edit_retailer(id):
         return redirect(url_for('retailers'))
     
     return render_template('edit_retailer.html', retailer=retailer)
+
+# Suppliers routes
+@app.route('/suppliers', methods=['GET', 'POST'])
+@login_required
+def suppliers():
+    if request.method == 'POST':
+        if 'delete_id' in request.form:
+            # Delete supplier
+            supplier = Supplier.query.get(request.form['delete_id'])
+            if supplier:
+                db.session.delete(supplier)
+                db.session.commit()
+                flash('Supplier deleted successfully!', 'success')
+        else:
+            # Add new supplier
+            name = request.form['name']
+            contact = request.form['contact']
+            email = request.form.get('email', '')
+            address = request.form.get('address', '')
+            company = request.form['company']
+            
+            supplier = Supplier(
+                name=name,
+                contact=contact,
+                email=email,
+                address=address,
+                company=company,
+                date_added=datetime.now().date()
+            )
+            
+            db.session.add(supplier)
+            db.session.commit()
+            flash('Supplier added successfully!', 'success')
+        
+        return redirect(url_for('suppliers'))
+    
+    # Get sorting parameters
+    sort_by = request.args.get('sort_by', 'name')
+    order = request.args.get('order', 'asc')
+    
+    # Validate sort parameters
+    valid_sort_columns = ['id', 'name', 'company']
+    if sort_by not in valid_sort_columns:
+        sort_by = 'name'
+    
+    # Apply sorting
+    if order == 'asc':
+        suppliers = Supplier.query.order_by(getattr(Supplier, sort_by)).all()
+    else:
+        suppliers = Supplier.query.order_by(getattr(Supplier, sort_by).desc()).all()
+    
+    return render_template('suppliers.html', suppliers=suppliers, sort_by=sort_by, order=order)
+
+@app.route('/edit_supplier/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_supplier(id):
+    supplier = Supplier.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        supplier.name = request.form['name']
+        supplier.contact = request.form['contact']
+        supplier.email = request.form.get('email', '')
+        supplier.address = request.form.get('address', '')
+        supplier.company = request.form['company']
+        
+        db.session.commit()
+        flash('Supplier updated successfully!', 'success')
+        return redirect(url_for('suppliers'))
+    
+    return render_template('edit_supplier.html', supplier=supplier)
+
+# Prescriptions routes
+@app.route('/prescriptions', methods=['GET', 'POST'])
+@login_required
+def prescriptions():
+    if request.method == 'POST':
+        if 'delete_id' in request.form:
+            # Delete prescription
+            prescription = Prescription.query.get(request.form['delete_id'])
+            if prescription:
+                db.session.delete(prescription)
+                db.session.commit()
+                flash('Prescription deleted successfully!', 'success')
+        else:
+            # Add new prescription
+            patient_id = request.form['patient_id']
+            doctor_name = request.form['doctor_name']
+            date_prescribed = datetime.strptime(request.form['date_prescribed'], '%Y-%m-%d').date()
+            notes = request.form.get('notes', '')
+            
+            prescription = Prescription(
+                patient_id=patient_id,
+                doctor_name=doctor_name,
+                date_prescribed=date_prescribed,
+                notes=notes,
+                date_added=datetime.now().date()
+            )
+            
+            db.session.add(prescription)
+            db.session.commit()
+            flash('Prescription added successfully!', 'success')
+        
+        return redirect(url_for('prescriptions'))
+    
+    # Get sorting parameters
+    sort_by = request.args.get('sort_by', 'date_prescribed')
+    order = request.args.get('order', 'desc')
+    
+    # Validate sort parameters
+    valid_sort_columns = ['id', 'doctor_name', 'date_prescribed', 'date_added']
+    if sort_by not in valid_sort_columns:
+        sort_by = 'date_prescribed'
+    
+    # Apply sorting
+    if order == 'asc':
+        prescriptions = Prescription.query.order_by(getattr(Prescription, sort_by)).all()
+    else:
+        prescriptions = Prescription.query.order_by(getattr(Prescription, sort_by).desc()).all()
+    
+    customers = Customer.query.all()
+    return render_template('prescriptions.html', prescriptions=prescriptions, customers=customers, sort_by=sort_by, order=order)
+
+@app.route('/edit_prescription/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_prescription(id):
+    prescription = Prescription.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        prescription.patient_id = request.form['patient_id']
+        prescription.doctor_name = request.form['doctor_name']
+        prescription.date_prescribed = datetime.strptime(request.form['date_prescribed'], '%Y-%m-%d').date()
+        prescription.notes = request.form.get('notes', '')
+        
+        db.session.commit()
+        flash('Prescription updated successfully!', 'success')
+        return redirect(url_for('prescriptions'))
+    
+    customers = Customer.query.all()
+    return render_template('edit_prescription.html', prescription=prescription, customers=customers)
 
 if __name__ == '__main__':
     app.run(debug=True)
