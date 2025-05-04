@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Retailers Management</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Add New Retailer</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('retailers') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Retailer Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Retailer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Retailer List</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <a href="{{ url_for('retailers', sort_by='location', order='asc') }}" class="btn btn-sm btn-outline-primary">Sort by Location (Asc)</a>
+                    <a href="{{ url_for('retailers', sort_by='location', order='desc') }}" class="btn btn-sm btn-outline-primary">Sort by Location (Desc)</a>
+                    <a href="{{ url_for('retailers', sort_by='name', order='asc') }}" class="btn btn-sm btn-outline-primary">Sort by Name (Asc)</a>
+                    <a href="{{ url_for('retailers', sort_by='name', order='desc') }}" class="btn btn-sm btn-outline-primary">Sort by Name (Desc)</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for retailer in retailers %}
+                            <tr>
+                                <td>{{ retailer.id }}</td>
+                                <td>{{ retailer.name }}</td>
+                                <td>{{ retailer.contact }}</td>
+                                <td>{{ retailer.email if retailer.email else '-' }}</td>
+                                <td>{{ retailer.address if retailer.address else '-' }}</td>
+                                <td>{{ retailer.location }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('retailers') }}" style="display: inline;">
+                                        <input type="hidden" name="delete_id" value="{{ retailer.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this retailer?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

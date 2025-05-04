@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Dashboard</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Medicines</h5>
+                <p class="card-text display-4">{{ Medicine.query.count() }}</p>
+                <a href="{{ url_for('medicines') }}" class="text-white">View Medicines</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Customers</h5>
+                <p class="card-text display-4">{{ Customer.query.count() }}</p>
+                <a href="{{ url_for('customers') }}" class="text-white">View Customers</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Total Retailers</h5>
+                <p class="card-text display-4">{{ Retailer.query.count() }}</p>
+                <a href="{{ url_for('retailers') }}" class="text-white">View Retailers</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

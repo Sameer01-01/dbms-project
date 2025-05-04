@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Medicines Management</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Add New Medicine</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('medicines') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Medicine Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="batch_number" class="form-label">Batch Number</label>
+                        <input type="text" class="form-control" id="batch_number" name="batch_number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="manufacturer" class="form-label">Manufacturer</label>
+                        <input type="text" class="form-control" id="manufacturer" name="manufacturer" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="expiry_date" name="expiry_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Medicine</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Medicine List</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <a href="{{ url_for('medicines', sort_by='id', order='asc') }}" class="btn btn-sm btn-outline-primary">Sort by ID (Asc)</a>
+                    <a href="{{ url_for('medicines', sort_by='id', order='desc') }}" class="btn btn-sm btn-outline-primary">Sort by ID (Desc)</a>
+                    <a href="{{ url_for('medicines', sort_by='name', order='asc') }}" class="btn btn-sm btn-outline-primary">Sort by Name (Asc)</a>
+                    <a href="{{ url_for('medicines', sort_by='name', order='desc') }}" class="btn btn-sm btn-outline-primary">Sort by Name (Desc)</a>
+                    <a href="{{ url_for('medicines', sort_by='date_added', order='asc') }}" class="btn btn-sm btn-outline-primary">Sort by Date Added (Asc)</a>
+                    <a href="{{ url_for('medicines', sort_by='date_added', order='desc') }}" class="btn btn-sm btn-outline-primary">Sort by Date Added (Desc)</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Batch Number</th>
+                                <th>Manufacturer</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Expiry Date</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medicine in medicines %}
+                            <tr>
+                                <td>{{ medicine.id }}</td>
+                                <td>{{ medicine.name }}</td>
+                                <td>{{ medicine.batch_number }}</td>
+                                <td>{{ medicine.manufacturer }}</td>
+                                <td>{{ medicine.quantity }}</td>
+                                <td>{{ "%.2f"|format(medicine.price) }}</td>
+                                <td>{{ medicine.expiry_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ medicine.date_added.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('medicines') }}" style="display: inline;">
+                                        <input type="hidden" name="delete_id" value="{{ medicine.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this medicine?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
