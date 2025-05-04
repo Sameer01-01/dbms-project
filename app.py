@@ -118,6 +118,26 @@ def medicines():
     
     return render_template('medicines.html', medicines=medicines, sort_by=sort_by, order=order)
 
+# Add edit medicine route
+@app.route('/edit_medicine/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_medicine(id):
+    medicine = Medicine.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        medicine.name = request.form['name']
+        medicine.batch_number = request.form['batch_number']
+        medicine.manufacturer = request.form['manufacturer']
+        medicine.quantity = int(request.form['quantity'])
+        medicine.price = float(request.form['price'])
+        medicine.expiry_date = datetime.strptime(request.form['expiry_date'], '%Y-%m-%d').date()
+        
+        db.session.commit()
+        flash('Medicine updated successfully!', 'success')
+        return redirect(url_for('medicines'))
+    
+    return render_template('edit_medicine.html', medicine=medicine)
+
 # Customers routes
 @app.route('/customers', methods=['GET', 'POST'])
 @login_required
@@ -162,6 +182,24 @@ def customers():
     customers = Customer.query.order_by(getattr(Customer, sort_by)).all()
     
     return render_template('customers.html', customers=customers, sort_by=sort_by)
+
+# Add edit customer route
+@app.route('/edit_customer/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_customer(id):
+    customer = Customer.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        customer.name = request.form['name']
+        customer.contact = request.form['contact']
+        customer.email = request.form.get('email', '')
+        customer.address = request.form.get('address', '')
+        
+        db.session.commit()
+        flash('Customer updated successfully!', 'success')
+        return redirect(url_for('customers'))
+    
+    return render_template('edit_customer.html', customer=customer)
 
 # Retailers routes
 @app.route('/retailers', methods=['GET', 'POST'])
@@ -213,6 +251,25 @@ def retailers():
         retailers = Retailer.query.order_by(getattr(Retailer, sort_by).desc()).all()
     
     return render_template('retailers.html', retailers=retailers, sort_by=sort_by, order=order)
+
+# Add edit retailer route
+@app.route('/edit_retailer/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_retailer(id):
+    retailer = Retailer.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        retailer.name = request.form['name']
+        retailer.contact = request.form['contact']
+        retailer.email = request.form.get('email', '')
+        retailer.address = request.form.get('address', '')
+        retailer.location = request.form['location']
+        
+        db.session.commit()
+        flash('Retailer updated successfully!', 'success')
+        return redirect(url_for('retailers'))
+    
+    return render_template('edit_retailer.html', retailer=retailer)
 
 if __name__ == '__main__':
     app.run(debug=True)
